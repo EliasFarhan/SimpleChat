@@ -25,6 +25,8 @@ int main()
 	sf::Clock deltaClock;
 	Status status = Status::NOT_CONNECTED;
 
+	std::vector<std::string> receivedMessages;
+
 	sf::TcpSocket socket;
 	socket.setBlocking(false);
 	std::string serverAddress = "localhost";
@@ -50,7 +52,7 @@ int main()
 			const auto receivedStatus = socket.receive(receivedMessage.data(), MAX_MESSAGE_LENGTH, actuallyReceived);
 			if(receivedStatus == sf::Socket::Status::Done)
 			{
-				std::cout << "Received: "<< receivedMessage<<'\n';
+				receivedMessages.push_back(receivedMessage);
 			}
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
@@ -107,6 +109,10 @@ int main()
 				{
 					sendStatus = socket.send(sendMessage.data(), MAX_MESSAGE_LENGTH, dataSent);
 				} while(sendStatus == sf::Socket::Status::Partial);
+			}
+			for(const auto& message: receivedMessages)
+			{
+				ImGui::Text("Received message: %s", message.data());
 			}
 			break;
 		}
