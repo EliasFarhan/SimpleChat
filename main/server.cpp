@@ -8,6 +8,7 @@
 #include <array>
 #include <memory>
 #include <iostream>
+#include <ranges>
 
 #include "const.h"
 
@@ -31,6 +32,15 @@ int main()
 	}
 	while (true)
 	{
+		for (auto& socket : sockets)
+		{
+			if (socket == nullptr)
+				continue;
+			if (socket->getLocalPort() == 0)
+			{
+				socket = nullptr;
+			}
+		}
 		{
 			sf::TcpSocket socket;
 			socket.setBlocking(false);
@@ -39,7 +49,18 @@ int main()
 			{
 				auto newSocket = std::make_unique<sf::TcpSocket>(std::move(socket));
 				socketSelector.add(*newSocket);
-				sockets.push_back(std::move(newSocket));
+				auto it = std::ranges::find_if(sockets, [](auto& local_socket)
+				{
+					return local_socket == nullptr;
+				});
+				if (it != sockets.end())
+				{
+					*it = std::move(newSocket);
+				}
+				else
+				{
+					sockets.push_back(std::move(newSocket));
+				}
 			}
 		}
 		if(socketSelector.wait(sf::milliseconds(100)))
