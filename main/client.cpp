@@ -54,6 +54,11 @@ int main()
 			{
 				receivedMessages.push_back(receivedMessage);
 			}
+			if (socket.getLocalPort() == 0)
+			{
+				status = Status::NOT_CONNECTED;
+			}
+
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
 		auto[x, y] = window.getSize();
@@ -85,11 +90,9 @@ int main()
 						std::cerr << "Partial\n";
 						break;
 					case sf::Socket::Status::Disconnected:
-
 						std::cerr << "Socket disconnected\n";
 						break;
 					case sf::Socket::Status::Error:
-
 						std::cerr << "Socket error\n";
 						break;
 					}

@@ -59,7 +59,7 @@ int main()
 					{
 					case sf::Socket::Status::Done:
 					{
-						std::cout << "Message received: " << message <<'\n';
+						std::cout << "Message received: " << message << std::endl;
 						for(auto& otherSocket : sockets)
 						{
 							if(otherSocket == nullptr)
