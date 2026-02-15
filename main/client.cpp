@@ -1,7 +1,8 @@
 
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <imgui-SFML.h>
+#include <SDL3/SDL.h>
 #include <imgui.h>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdlrenderer3.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/IpAddress.hpp>
@@ -18,11 +19,16 @@ enum class Status
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode({1280, 720}), "Simple Chat");
- 	window.setFramerateLimit(60);
-    ImGui::SFML::Init(window);
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Window* window = SDL_CreateWindow("Simple Chat", 1280, 720, SDL_WINDOW_RESIZABLE);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
+	SDL_SetRenderVSync(renderer, 1);
+
+	ImGui::CreateContext();
+	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+	ImGui_ImplSDLRenderer3_Init(renderer);
+
 	bool isOpen = true;
-	sf::Clock deltaClock;
 	Status status = Status::NOT_CONNECTED;
 
 	std::vector<std::string> receivedMessages;
@@ -38,10 +44,11 @@ int main()
 	receivedMessage.resize(MAX_MESSAGE_LENGTH, 0);
 	while (isOpen)
 	{
-		while(const std::optional event = window. pollEvent())
+		SDL_Event event;
+		while(SDL_PollEvent(&event))
 		{
-			ImGui::SFML::ProcessEvent(window, *event);
-			if (event->is<sf::Event::Closed>())
+			ImGui_ImplSDL3_ProcessEvent(&event);
+			if (event.type == SDL_EVENT_QUIT)
 			{
 				isOpen = false;
 			}
@@ -60,9 +67,12 @@ int main()
 			}
 
 		}
-		ImGui::SFML::Update(window, deltaClock.restart());
-		auto[x, y] = window.getSize();
-		ImGui::SetNextWindowSize({(float)x, (float)y}, ImGuiCond_Always);
+		ImGui_ImplSDLRenderer3_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
+		ImGui::NewFrame();
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
+		ImGui::SetNextWindowSize({(float)w, (float)h}, ImGuiCond_Always);
 		ImGui::SetNextWindowPos({0.0f,0.0f}, ImGuiCond_Always);
 		ImGui::Begin("Simple Chat",nullptr, ImGuiWindowFlags_NoTitleBar);
 		switch(status)
@@ -121,10 +131,17 @@ int main()
 		}
 		}
 		ImGui::End();
-		window.clear();
-		ImGui::SFML::Render(window);
-		window.display();
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		ImGui::Render();
+		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+		SDL_RenderPresent(renderer);
 	}
 
-	ImGui::SFML::Shutdown();
+	ImGui_ImplSDLRenderer3_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
+	ImGui::DestroyContext();
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 }
