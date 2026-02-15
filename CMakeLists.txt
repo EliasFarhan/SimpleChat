@@ -52,7 +52,7 @@ add_library(common_lib STATIC
   src/chat_client.cpp
   src/chat_server.cpp
 )
-target_include_directories(common_lib PUBLIC include src)
+target_include_directories(common_lib PUBLIC include)
 target_include_directories(common_lib SYSTEM PUBLIC externals/SFML/include)
 target_link_libraries(common_lib PUBLIC sfml-network)
 target_compile_options(common_lib PRIVATE ${PROJECT_WARNING_FLAGS})
@@ -67,7 +67,7 @@ add_library(client_lib STATIC
   src/client_view.cpp
   src/client_controller.cpp
 )
-target_include_directories(client_lib PUBLIC include src)
+target_include_directories(client_lib PUBLIC include)
 target_include_directories(client_lib SYSTEM PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/externals/SDL/include
 )
@@ -76,12 +76,12 @@ target_compile_options(client_lib PRIVATE ${PROJECT_WARNING_FLAGS})
 
 # Server executable
 add_executable(server main/server.cpp)
-target_include_directories(server PRIVATE include src)
+target_include_directories(server PRIVATE include)
 target_link_libraries(server PRIVATE common_lib)
 target_compile_options(server PRIVATE ${PROJECT_WARNING_FLAGS})
 
 # Client executable
 add_executable(client main/client.cpp)
-target_include_directories(client PRIVATE include src)
+target_include_directories(client PRIVATE include)
 target_link_libraries(client PRIVATE client_lib)
 target_compile_options(client PRIVATE ${PROJECT_WARNING_FLAGS})
