@@ -40,29 +40,28 @@ void ChatServer::AcceptNewConnections() {
   socket.setBlocking(false);
   const auto newSocketStatus = listener_.accept(socket);
   if (newSocketStatus == sf::Socket::Status::Done) {
-    auto newSocket = std::make_unique<sf::TcpSocket>(std::move(socket));
+    // Try to reuse an empty slot left by a disconnected client,
+    // otherwise append at the end.
+    auto it = std::ranges::find_if(
+        sockets_, [](const auto& s) { return !s.has_value(); });
+    if (it != sockets_.end()) {
+      it->emplace(std::move(socket));
+    } else {
+      sockets_.emplace_back(std::move(socket));
+    }
+    auto& newSocket = (it != sockets_.end()) ? *it : sockets_.back();
     // Register the new socket with the selector so HandleMessages() can
     // efficiently check if it has data ready.
     socketSelector_.add(*newSocket);
-
-    // Try to reuse a nullptr slot left by a disconnected client,
-    // otherwise append at the end.
-    auto it = std::ranges::find_if(
-        sockets_, [](const auto& s) { return s == nullptr; });
-    if (it != sockets_.end()) {
-      *it = std::move(newSocket);
-    } else {
-      sockets_.push_back(std::move(newSocket));
-    }
   }
 }
 
 void ChatServer::CleanDisconnected() {
   for (auto& socket : sockets_) {
-    if (socket == nullptr) continue;
+    if (!socket.has_value()) continue;
     // A local port of 0 means the OS has closed the socket.
     if (socket->getLocalPort() == 0) {
-      socket = nullptr;
+      socket.reset();
     }
   }
 }
@@ -75,7 +74,7 @@ void ChatServer::HandleMessages() {
   }
 
   for (auto& socket : sockets_) {
-    if (socket == nullptr) continue;
+    if (!socket.has_value()) continue;
     // Only read from sockets that the selector flagged as ready.
     if (!socketSelector_.isReady(*socket)) continue;
 
@@ -94,7 +93,7 @@ void ChatServer::HandleMessages() {
         // For a game you would replace this with game logic (validate
         // the move, update state, send targeted responses, etc.).
         for (auto& otherSocket : sockets_) {
-          if (otherSocket == nullptr) continue;
+          if (!otherSocket.has_value()) continue;
           std::size_t totalSent = 0;
           while (totalSent < actualLength) {
             std::size_t sentDataCount = 0;

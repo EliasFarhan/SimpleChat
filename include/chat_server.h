@@ -21,7 +21,7 @@
 #include <SFML/Network/SocketSelector.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
-#include <memory>
+#include <optional>
 #include <vector>
 
 class ChatServer {
@@ -55,11 +55,10 @@ class ChatServer {
 
   /**
    * Connected client sockets.
-   * We use unique_ptr because TcpSocket is not copyable.  Slots may be
-   * nullptr after a client disconnects; they get reused by the next
-   * connecting client.
+   * Slots may be nullopt after a client disconnects; they get reused by
+   * the next connecting client.
    */
-  std::vector<std::unique_ptr<sf::TcpSocket>> sockets_;
+  std::vector<std::optional<sf::TcpSocket>> sockets_;
 };
 
 #endif  // CHAT_SERVER_H_
