@@ -8,4 +8,4 @@
 static constexpr auto MAX_MESSAGE_LENGTH = 150;
 static constexpr short PORT_NUMBER = 4533;
 
-#endif //_CONST_H_
+#endif  //_CONST_H_
