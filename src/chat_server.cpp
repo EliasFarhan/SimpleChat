@@ -12,7 +12,6 @@ bool ChatServer::Start(unsigned short port) {
     std::cerr << "Error while listening\n";
     return false;
   }
-  sockets_.reserve(15);
   return true;
 }
 
@@ -30,7 +29,7 @@ void ChatServer::AcceptNewConnections() {
     auto newSocket = std::make_unique<sf::TcpSocket>(std::move(socket));
     socketSelector_.add(*newSocket);
     auto it = std::ranges::find_if(
-        sockets_, [](auto& s) { return s == nullptr; });
+        sockets_, [](const auto& s) { return s == nullptr; });
     if (it != sockets_.end()) {
       *it = std::move(newSocket);
     } else {
@@ -57,22 +56,29 @@ void ChatServer::HandleMessages() {
     if (!socketSelector_.isReady(*socket)) continue;
 
     std::string message;
-    message.resize(MAX_MESSAGE_LENGTH, 0);
-    std::size_t actualLength;
+    message.resize(MAX_MESSAGE_LENGTH);
+    std::size_t actualLength = 0;
 
-    sf::TcpSocket::Status receiveStatus =
+    const auto receiveStatus =
         socket->receive(message.data(), MAX_MESSAGE_LENGTH, actualLength);
     switch (receiveStatus) {
       case sf::Socket::Status::Done: {
-        std::cout << "Message received: " << message << std::endl;
+        message.resize(actualLength);
+        std::cout << "Message received: " << message << "\n";
         for (auto& otherSocket : sockets_) {
           if (otherSocket == nullptr) continue;
-          std::size_t sentDataCount;
-          sf::TcpSocket::Status sendStatus;
-          do {
-            sendStatus = otherSocket->send(message.data(), actualLength,
-                                           sentDataCount);
-          } while (sendStatus == sf::Socket::Status::Partial);
+          std::size_t totalSent = 0;
+          while (totalSent < actualLength) {
+            std::size_t sentDataCount = 0;
+            const auto sendStatus = otherSocket->send(
+                message.data() + totalSent, actualLength - totalSent,
+                sentDataCount);
+            if (sendStatus == sf::Socket::Status::Partial) {
+              totalSent += sentDataCount;
+              continue;
+            }
+            break;
+          }
         }
         break;
       }
@@ -85,7 +91,8 @@ void ChatServer::HandleMessages() {
       case sf::Socket::Status::NotReady:
         std::cerr << "Not ready on received\n";
         break;
-      default:
+      case sf::Socket::Status::Disconnected:
+        std::cerr << "Socket disconnected\n";
         break;
     }
   }

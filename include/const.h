@@ -2,10 +2,12 @@
 // Created by unite on 24.02.2025.
 //
 
-#ifndef _CONST_H_
-#define _CONST_H_
+#ifndef SIMPLE_CHAT_CONST_H
+#define SIMPLE_CHAT_CONST_H
 
-static constexpr auto MAX_MESSAGE_LENGTH = 150;
-static constexpr short PORT_NUMBER = 4533;
+#include <cstdint>
 
-#endif  //_CONST_H_
+inline constexpr std::size_t MAX_MESSAGE_LENGTH = 150;
+inline constexpr std::uint16_t PORT_NUMBER = 4533;
+
+#endif  // SIMPLE_CHAT_CONST_H

@@ -1,31 +1,22 @@
 #ifndef CLIENT_VIEW_H_
 #define CLIENT_VIEW_H_
 
+#include <span>
 #include <string>
-#include <vector>
 
 struct SDL_Window;
 struct SDL_Renderer;
 
-struct ConnectAction {
-  std::string host;
-  unsigned short port;
-};
-
-struct SendAction {
-  std::string message;
-};
-
 class ClientView {
  public:
-  bool Init();
+  [[nodiscard]] bool Init();
   void Shutdown();
   void BeginFrame();
   void EndFrame();
-  bool DrawConnectionPanel(std::string& address, short& port);
-  bool DrawChatPanel(const std::vector<std::string>& messages,
+  bool DrawConnectionPanel(std::string& address, unsigned short& port);
+  bool DrawChatPanel(std::span<const std::string> messages,
                      std::string& sendMessage);
-  bool ShouldQuit() const;
+  [[nodiscard]] bool ShouldQuit() const;
 
  private:
   SDL_Window* window_ = nullptr;

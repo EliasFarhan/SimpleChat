@@ -13,7 +13,7 @@ class ClientController {
   ClientModel model_;
   ClientView view_;
   std::string serverAddress_ = "localhost";
-  short portNumber_ = PORT_NUMBER;
+  unsigned short portNumber_ = PORT_NUMBER;
   std::string sendMessage_;
 };
 

@@ -1,11 +1,11 @@
 #include "client_model.h"
 
-void ClientModel::Connect(const std::string& host, unsigned short port) {
-  client_.Connect(host, port);
+bool ClientModel::Connect(std::string_view host, unsigned short port) {
+  return client_.Connect(host, port);
 }
 
-void ClientModel::SendMessage(const std::string& message) {
-  client_.Send(message);
+bool ClientModel::SendMessage(std::string_view message) {
+  return client_.Send(message);
 }
 
 void ClientModel::PollMessages() {

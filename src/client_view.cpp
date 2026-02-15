@@ -6,11 +6,25 @@
 #include <imgui_impl_sdlrenderer3.h>
 #include <misc/cpp/imgui_stdlib.h>
 
+#include <iostream>
+#include <span>
+
 bool ClientView::Init() {
-  SDL_Init(SDL_INIT_VIDEO);
+  if (!SDL_Init(SDL_INIT_VIDEO)) {
+    std::cerr << "Failed to init SDL: " << SDL_GetError() << "\n";
+    return false;
+  }
   window_ =
       SDL_CreateWindow("Simple Chat", 1280, 720, SDL_WINDOW_RESIZABLE);
+  if (window_ == nullptr) {
+    std::cerr << "Failed to create window: " << SDL_GetError() << "\n";
+    return false;
+  }
   renderer_ = SDL_CreateRenderer(window_, nullptr);
+  if (renderer_ == nullptr) {
+    std::cerr << "Failed to create renderer: " << SDL_GetError() << "\n";
+    return false;
+  }
   SDL_SetRenderVSync(renderer_, 1);
 
   ImGui::CreateContext();
@@ -40,7 +54,7 @@ void ClientView::BeginFrame() {
   ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
 
-  int w, h;
+  int w = 0, h = 0;
   SDL_GetWindowSize(window_, &w, &h);
   ImGui::SetNextWindowSize(
       {static_cast<float>(w), static_cast<float>(h)}, ImGuiCond_Always);
@@ -57,19 +71,25 @@ void ClientView::EndFrame() {
   SDL_RenderPresent(renderer_);
 }
 
-bool ClientView::DrawConnectionPanel(std::string& address, short& port) {
-  ImGui::InputText("Host Address", address.data(), address.size());
+bool ClientView::DrawConnectionPanel(std::string& address,
+                                      unsigned short& port) {
+  ImGui::InputText("Host Address", &address);
   ImGui::SameLine();
-  ImGui::Text("%hd", port);
+  int portInt = port;
+  if (ImGui::InputInt("Port", &portInt, 0, 0)) {
+    if (portInt > 0 && portInt <= 65535) {
+      port = static_cast<unsigned short>(portInt);
+    }
+  }
   return ImGui::Button("Connect");
 }
 
-bool ClientView::DrawChatPanel(const std::vector<std::string>& messages,
+bool ClientView::DrawChatPanel(std::span<const std::string> messages,
                                std::string& sendMessage) {
-  ImGui::InputText("Message", sendMessage.data(), sendMessage.size());
+  ImGui::InputText("Message", &sendMessage);
   bool send = ImGui::Button("Send");
   for (const auto& message : messages) {
-    ImGui::Text("Received message: %s", message.data());
+    ImGui::TextUnformatted(message.c_str());
   }
   return send;
 }

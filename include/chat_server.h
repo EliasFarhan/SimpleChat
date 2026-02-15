@@ -9,7 +9,7 @@
 
 class ChatServer {
  public:
-  bool Start(unsigned short port);
+  [[nodiscard]] bool Start(unsigned short port);
   void Update();
 
  private:

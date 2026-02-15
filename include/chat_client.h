@@ -4,15 +4,16 @@
 #include <SFML/Network/TcpSocket.hpp>
 #include <optional>
 #include <string>
+#include <string_view>
 
 enum class ConnectionStatus { NOT_CONNECTED, CONNECTED };
 
 class ChatClient {
  public:
-  bool Connect(const std::string& host, unsigned short port);
-  bool Send(const std::string& message);
-  std::optional<std::string> Receive();
-  bool IsConnected() const;
+  [[nodiscard]] bool Connect(std::string_view host, unsigned short port);
+  [[nodiscard]] bool Send(std::string_view message);
+  [[nodiscard]] std::optional<std::string> Receive();
+  [[nodiscard]] bool IsConnected() const;
   void Disconnect();
 
  private:

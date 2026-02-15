@@ -1,3 +1,5 @@
 cmake-build-debug
+cmake-build-relwitdebinfo
 cmake-build-release
 .idea
+[bB]uild/

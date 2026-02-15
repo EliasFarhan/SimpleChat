@@ -1,19 +1,20 @@
 #include "chat_client.h"
 
 #include <SFML/Network/IpAddress.hpp>
+#include <algorithm>
 #include <iostream>
 
 #include "const.h"
 
-bool ChatClient::Connect(const std::string& host, unsigned short port) {
-  auto address = sf::IpAddress::resolve(host);
+bool ChatClient::Connect(std::string_view host, unsigned short port) {
+  auto address = sf::IpAddress::resolve(std::string(host));
   if (!address) {
     std::cerr << "Failed to resolve address: " << host << "\n";
     return false;
   }
 
   socket_.setBlocking(true);
-  const auto connectionStatus = socket_.connect(address.value(), port);
+  const auto connectionStatus = socket_.connect(*address, port);
   socket_.setBlocking(false);
 
   switch (connectionStatus) {
@@ -36,22 +37,33 @@ bool ChatClient::Connect(const std::string& host, unsigned short port) {
   return false;
 }
 
-bool ChatClient::Send(const std::string& message) {
-  std::size_t dataSent;
-  sf::TcpSocket::Status sendStatus;
-  do {
-    sendStatus = socket_.send(message.data(), MAX_MESSAGE_LENGTH, dataSent);
-  } while (sendStatus == sf::Socket::Status::Partial);
-  return sendStatus == sf::Socket::Status::Done;
+bool ChatClient::Send(std::string_view message) {
+  const auto sendSize = std::min(message.size(), MAX_MESSAGE_LENGTH);
+  std::size_t totalSent = 0;
+  while (totalSent < sendSize) {
+    std::size_t dataSent = 0;
+    const auto sendStatus =
+        socket_.send(message.data() + totalSent, sendSize - totalSent, dataSent);
+    if (sendStatus == sf::Socket::Status::Partial) {
+      totalSent += dataSent;
+      continue;
+    }
+    if (sendStatus == sf::Socket::Status::Done) {
+      return true;
+    }
+    return false;
+  }
+  return true;
 }
 
 std::optional<std::string> ChatClient::Receive() {
   std::string message;
-  message.resize(MAX_MESSAGE_LENGTH, 0);
-  std::size_t actuallyReceived;
+  message.resize(MAX_MESSAGE_LENGTH);
+  std::size_t actuallyReceived = 0;
   const auto receivedStatus =
       socket_.receive(message.data(), MAX_MESSAGE_LENGTH, actuallyReceived);
   if (receivedStatus == sf::Socket::Status::Done) {
+    message.resize(actuallyReceived);
     return message;
   }
   if (socket_.getLocalPort() == 0) {
