@@ -3,6 +3,7 @@
 //
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
+#include <cstdlib>
 
 constexpr size_t kMaxMsgLength = 100;
 constexpr uint16_t kPort = 53000;

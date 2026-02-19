@@ -1,0 +1,16 @@
+{
+  "name": "rdt",
+  "version-string": "1.0",
+  "dependencies": [
+    "sdl3",
+    {
+      "name": "imgui",
+      "features": ["sdl3-binding", "sdl3-renderer-binding"]
+    },
+    "gtest",
+    {
+      "name": "sfml",
+      "features": ["network"]
+    }
+  ]
+}

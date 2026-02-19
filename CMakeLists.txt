@@ -4,7 +4,6 @@ project(SimpleChat)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(externals/)
 
 # Warning flags (scoped to our targets only, not externals)
 if(MSVC)
@@ -48,6 +47,10 @@ else()
   endif()
 endif()
 
+find_package(SFML COMPONENTS Network CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(SDL3 CONFIG REQUIRED)
+
 # Common library (networking + model + controller)
 add_library(common_lib STATIC
   src/chat_client.cpp
@@ -57,11 +60,8 @@ add_library(common_lib STATIC
 )
 target_include_directories(common_lib PUBLIC include)
 target_include_directories(common_lib SYSTEM PUBLIC externals/SFML/include)
-target_link_libraries(common_lib PUBLIC sfml-network)
+target_link_libraries(common_lib PUBLIC SFML::Network)
 target_compile_options(common_lib PRIVATE ${PROJECT_WARNING_FLAGS})
 
-# Treat external include dirs as system to suppress warnings in their headers
-get_target_property(IMGUI_INCLUDE_DIRS imgui-sdl INTERFACE_INCLUDE_DIRECTORIES)
-set_target_properties(imgui-sdl PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${IMGUI_INCLUDE_DIRS}")
 
 add_subdirectory(main)
