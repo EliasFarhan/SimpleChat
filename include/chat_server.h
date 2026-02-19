@@ -50,6 +50,8 @@ class ChatServer {
   /// Read incoming data from ready sockets and broadcast to all clients.
   void HandleMessages();
 
+  void RemoveSocketAt(int64_t index);
+
   sf::TcpListener listener_;  ///< Listens for new TCP connections.
   sf::SocketSelector socketSelector_;  ///< Watches multiple sockets for readiness.
 
@@ -58,7 +60,7 @@ class ChatServer {
    * Slots may be nullopt after a client disconnects; they get reused by
    * the next connecting client.
    */
-  std::vector<std::optional<sf::TcpSocket>> sockets_;
+  std::vector<sf::TcpSocket> sockets_;
 };
 
 #endif  // CHAT_SERVER_H_

@@ -10,7 +10,7 @@
 
 #include "chat_server.h"
 
-#include <iostream>
+#include <filesystem>
 #include <print>
 #include <ranges>
 
@@ -41,27 +41,17 @@ void ChatServer::AcceptNewConnections() {
   socket.setBlocking(false);
   const auto newSocketStatus = listener_.accept(socket);
   if (newSocketStatus == sf::Socket::Status::Done) {
-    // Try to reuse an empty slot left by a disconnected client,
-    // otherwise append at the end.
-    auto it = std::ranges::find_if(
-        sockets_, [](const auto& s) { return !s.has_value(); });
-    if (it != sockets_.end()) {
-      it->emplace(std::move(socket));
-      socketSelector_.add(it->value());
-    } else {
-      sockets_.emplace_back(std::move(socket));
-      socketSelector_.add(sockets_.back().value());
-    }
-
+    socketSelector_.add(socket);
+    sockets_.push_back(std::move(socket));
   }
 }
 
 void ChatServer::CleanDisconnected() {
-  for (auto& socket : sockets_) {
-    if (!socket.has_value()) continue;
+  for (int64_t socket_idx = std::ssize(sockets_) - 1; socket_idx >= 0; --socket_idx) {
+    auto& socket = sockets_[socket_idx];
     // A local port of 0 means the OS has closed the socket.
-    if (socket->getLocalPort() == 0) {
-      socket.reset();
+    if (socket.getLocalPort() == 0) {
+      RemoveSocketAt(socket_idx);
     }
   }
 }
@@ -73,38 +63,48 @@ void ChatServer::HandleMessages() {
     return;  // No socket had data within the timeout.
   }
 
-  for (auto& socket : sockets_) {
-    if (!socket.has_value()) continue;
+  for (int64_t socket_idx = std::ssize(sockets_) - 1; socket_idx >= 0; --socket_idx) {
+    auto& socket = sockets_[socket_idx];
     // Only read from sockets that the selector flagged as ready.
-    if (!socketSelector_.isReady(*socket)) continue;
+    if (!socketSelector_.isReady(socket)) continue;
 
     std::string message;
     message.resize(MAX_MESSAGE_LENGTH);
-    std::size_t actualLength = 0;
+    size_t actualLength = 0;
 
-    const auto receiveStatus =
-        socket->receive(message.data(), MAX_MESSAGE_LENGTH, actualLength);
+    sf::Socket::Status receiveStatus = socket.receive(message.data(), MAX_MESSAGE_LENGTH, actualLength);
+    if (receiveStatus == sf::Socket::Status::Disconnected) {
+      RemoveSocketAt(socket_idx);
+      continue;
+    }
+
     switch (receiveStatus) {
       case sf::Socket::Status::Done: {
         message.resize(actualLength);
-        std::cout << "Message received: " << message << "\n";
+        std::print("Message received: {}\n", message);
 
         // --- Broadcast: send the message to ALL connected clients. ---
         // For a game you would replace this with game logic (validate
         // the move, update state, send targeted responses, etc.).
-        for (auto& otherSocket : sockets_) {
-          if (!otherSocket.has_value()) continue;
-          std::size_t totalSent = 0;
+        for (int64_t other_idx = std::ssize(sockets_) - 1; other_idx >= 0; --other_idx) {
+          auto& otherSocket = sockets_[other_idx];
+          size_t totalSent = 0;
           while (totalSent < actualLength) {
-            std::size_t sentDataCount = 0;
-            const auto sendStatus = otherSocket->send(
+            size_t sentDataCount = 0;
+            const auto sendStatus = otherSocket.send(
                 message.data() + totalSent, actualLength - totalSent,
                 sentDataCount);
             if (sendStatus == sf::Socket::Status::Partial) {
               totalSent += sentDataCount;
               continue;
             }
-            break;
+            else if (sendStatus == sf::Socket::Status::Disconnected) {
+              RemoveSocketAt(other_idx);
+              break;
+            }
+            else {
+              break;
+            }
           }
         }
         break;
@@ -123,4 +123,8 @@ void ChatServer::HandleMessages() {
         break;
     }
   }
+}
+void ChatServer::RemoveSocketAt(int64_t index) {
+  socketSelector_.remove(sockets_[index]);
+  sockets_.erase(sockets_.begin() + index);
 }
