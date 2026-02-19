@@ -11,6 +11,7 @@
 #include "chat_server.h"
 
 #include <iostream>
+#include <print>
 #include <ranges>
 
 #include "const.h"
@@ -21,7 +22,7 @@ bool ChatServer::Start(unsigned short port) {
   listener_.setBlocking(false);
   const auto listenerStatus = listener_.listen(port);
   if (listenerStatus != sf::Socket::Status::Done) {
-    std::cerr << "Error while listening\n";
+    std::print(stderr, "Error while listening\n");
     return false;
   }
   return true;
@@ -46,13 +47,12 @@ void ChatServer::AcceptNewConnections() {
         sockets_, [](const auto& s) { return !s.has_value(); });
     if (it != sockets_.end()) {
       it->emplace(std::move(socket));
+      socketSelector_.add(it->value());
     } else {
       sockets_.emplace_back(std::move(socket));
+      socketSelector_.add(sockets_.back().value());
     }
-    auto& newSocket = (it != sockets_.end()) ? *it : sockets_.back();
-    // Register the new socket with the selector so HandleMessages() can
-    // efficiently check if it has data ready.
-    socketSelector_.add(*newSocket);
+
   }
 }
 
@@ -110,16 +110,16 @@ void ChatServer::HandleMessages() {
         break;
       }
       case sf::Socket::Status::Partial:
-        std::cerr << "Partial received...\n";
+        std::print(stderr, "Partial received...\n");
         break;
       case sf::Socket::Status::Error:
-        std::cerr << "Error receiving\n";
+        std::print(stderr, "Error receiving\n");
         break;
       case sf::Socket::Status::NotReady:
-        std::cerr << "Not ready on received\n";
+        std::print(stderr, "Not ready on received\n");
         break;
       case sf::Socket::Status::Disconnected:
-        std::cerr << "Socket disconnected\n";
+        std::print(stderr, "Socket disconnected\n");
         break;
     }
   }

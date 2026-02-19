@@ -10,6 +10,6 @@ target_link_libraries(client_lib PUBLIC common_lib imgui-sdl SDL3::SDL3)
 target_compile_options(client_lib PRIVATE ${PROJECT_WARNING_FLAGS})
 
 # Client executable
-add_executable(client src/client.cpp)
-target_link_libraries(client PRIVATE client_lib)
-target_compile_options(client PRIVATE ${PROJECT_WARNING_FLAGS})
+add_executable(chat_client src/client.cpp)
+target_link_libraries(chat_client PRIVATE client_lib)
+target_compile_options(chat_client PRIVATE ${PROJECT_WARNING_FLAGS})

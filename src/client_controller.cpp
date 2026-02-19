@@ -1,6 +1,6 @@
 #include "client_controller.h"
 
-#include <iostream>
+#include <print>
 #include <utility>
 
 ClientController::ClientController(std::unique_ptr<ClientViewInterface> view)
@@ -17,15 +17,14 @@ void ClientController::Run() {
     if (!model_.IsConnected()) {
       if (view_->DrawConnectionPanel(serverAddress_, portNumber_)) {
         if (!model_.Connect(serverAddress_, portNumber_)) {
-          std::cerr << "Failed to connect to " << serverAddress_ << ":"
-                    << portNumber_ << "\n";
+          std::print(stderr, "Failed to connect to {}:{}\n", serverAddress_, portNumber_);
         }
       }
     } else {
       model_.PollMessages();
       if (view_->DrawChatPanel(model_.GetMessages(), sendMessage_)) {
         if (!model_.SendMessage(sendMessage_)) {
-          std::cerr << "Failed to send message\n";
+          std::print(stderr, "Failed to send message\n");
         }
       }
     }

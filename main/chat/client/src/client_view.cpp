@@ -20,24 +20,24 @@
 #include <imgui_impl_sdlrenderer3.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-#include <iostream>
+#include <print>
 #include <span>
 
 bool ClientView::Init() {
   // --- SDL initialisation ---
   if (!SDL_Init(SDL_INIT_VIDEO)) {
-    std::cerr << "Failed to init SDL: " << SDL_GetError() << "\n";
+    std::print(stderr, "Failed to init SDL: {}\n", SDL_GetError());
     return false;
   }
   window_ =
       SDL_CreateWindow("Simple Chat", 1280, 720, SDL_WINDOW_RESIZABLE);
   if (window_ == nullptr) {
-    std::cerr << "Failed to create window: " << SDL_GetError() << "\n";
+    std::print(stderr, "Failed to create window: {}\n", SDL_GetError());
     return false;
   }
   renderer_ = SDL_CreateRenderer(window_, nullptr);
   if (renderer_ == nullptr) {
-    std::cerr << "Failed to create renderer: " << SDL_GetError() << "\n";
+    std::print(stderr, "Failed to create renderer: {}\n", SDL_GetError());
     return false;
   }
   // Enable VSync so we don't render faster than the monitor refresh rate.

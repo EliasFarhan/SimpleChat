@@ -64,5 +64,4 @@ target_compile_options(common_lib PRIVATE ${PROJECT_WARNING_FLAGS})
 get_target_property(IMGUI_INCLUDE_DIRS imgui-sdl INTERFACE_INCLUDE_DIRECTORIES)
 set_target_properties(imgui-sdl PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${IMGUI_INCLUDE_DIRS}")
 
-add_subdirectory(client)
-add_subdirectory(server)
+add_subdirectory(main)

@@ -7,7 +7,7 @@
 
 #include <SFML/Network/IpAddress.hpp>
 #include <algorithm>
-#include <iostream>
+#include <print>
 
 #include "const.h"
 
@@ -15,7 +15,7 @@ bool ChatClient::Connect(std::string_view host, unsigned short port) {
   // Resolve the human-readable host name (e.g. "localhost") to an IP address.
   auto address = sf::IpAddress::resolve(std::string(host));
   if (!address) {
-    std::cerr << "Failed to resolve address: " << host << "\n";
+    std::print(stderr, "Failed to resolve address: {}\n", host);
     return false;
   }
 
@@ -30,16 +30,16 @@ bool ChatClient::Connect(std::string_view host, unsigned short port) {
       status_ = ConnectionStatus::CONNECTED;
       return true;
     case sf::Socket::Status::NotReady:
-      std::cerr << "Socket not ready\n";
+      std::print(stderr, "Socket not ready\n");
       break;
     case sf::Socket::Status::Partial:
-      std::cerr << "Partial\n";
+      std::print(stderr, "Partial\n");
       break;
     case sf::Socket::Status::Disconnected:
-      std::cerr << "Socket disconnected\n";
+      std::print(stderr, "Socket disconnected\n");
       break;
     case sf::Socket::Status::Error:
-      std::cerr << "Socket error\n";
+      std::print(stderr, "Socket error\n");
       break;
   }
   return false;
