@@ -3,8 +3,9 @@
 #include <print>
 #include <utility>
 
-ClientController::ClientController(std::unique_ptr<ClientViewInterface> view)
-    : view_(std::move(view)) {}
+ClientController::ClientController(ClientModelInterface& model,
+                                   std::unique_ptr<ClientViewInterface> view)
+    : model_(model), view_(std::move(view)) {}
 
 void ClientController::Run() {
   if (!view_->Init()) {

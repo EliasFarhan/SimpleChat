@@ -1,8 +1,8 @@
 add_executable(echo_client single_client.cpp)
-target_link_libraries(echo_client PRIVATE common_lib)
+target_link_libraries(echo_client PRIVATE SFML::Network)
 
 add_executable(single_echo_server single_server.cpp)
-target_link_libraries(single_echo_server PRIVATE common_lib)
+target_link_libraries(single_echo_server PRIVATE SFML::Network)
 
 add_executable(multiple_echo_server multiple_server.cpp)
-target_link_libraries(multiple_echo_server PRIVATE common_lib)
+target_link_libraries(multiple_echo_server PRIVATE SFML::Network)

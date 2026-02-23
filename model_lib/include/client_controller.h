@@ -3,18 +3,19 @@
 
 #include <memory>
 
-#include "client_model.h"
+#include "client_model_interface.h"
 #include "client_view_interface.h"
 #include "const.h"
 
 class ClientController {
  public:
-  explicit ClientController(std::unique_ptr<ClientViewInterface> view);
+  ClientController(ClientModelInterface& model,
+                   std::unique_ptr<ClientViewInterface> view);
 
   void Run();
 
  private:
-  ClientModel model_;
+  ClientModelInterface& model_;
   std::unique_ptr<ClientViewInterface> view_;
 
   std::string serverAddress_ = "localhost";

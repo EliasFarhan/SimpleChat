@@ -21,6 +21,8 @@
 #define CHAT_CLIENT_H_
 
 #include "SFML/Network/TcpSocket.hpp"
+#include "chat_client_interface.h"
+
 #include <optional>
 #include <string>
 #include <string_view>
@@ -28,31 +30,32 @@
 /// Simple enum to track whether we are currently connected to a server.
 enum class ConnectionStatus { NOT_CONNECTED, CONNECTED };
 
-class ChatClient {
+class ChatClient : public ChatClientInterface {
  public:
   /**
    * @brief Resolve the host name and open a TCP connection to the server.
    * @return true on success, false on failure (address not found, refused, etc.)
    */
-  [[nodiscard]] bool Connect(std::string_view host, unsigned short port);
+  [[nodiscard]] bool Connect(std::string_view host,
+                             unsigned short port) override;
 
   /**
    * @brief Send a text message to the server (up to MAX_MESSAGE_LENGTH bytes).
    * @return true if the whole message was sent successfully.
    */
-  [[nodiscard]] bool Send(std::string_view message);
+  [[nodiscard]] bool Send(std::string_view message) override;
 
   /**
    * @brief Try to receive a message from the server (non-blocking).
    * @return The received string, or std::nullopt if nothing is available yet.
    */
-  [[nodiscard]] std::optional<std::string> Receive();
+  [[nodiscard]] std::optional<std::string> Receive() override;
 
   /// @return true if we believe the connection is still alive.
-  [[nodiscard]] bool IsConnected() const;
+  [[nodiscard]] bool IsConnected() const override;
 
   /// Gracefully close the connection.
-  void Disconnect();
+  void Disconnect() override;
 
  private:
   sf::TcpSocket socket_;  ///< The underlying SFML TCP socket.

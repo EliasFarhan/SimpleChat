@@ -9,6 +9,8 @@
 
 #include "client_model.h"
 
+ClientModel::ClientModel(ChatClientInterface& client) : client_(client) {}
+
 bool ClientModel::Connect(std::string_view host, unsigned short port) {
   return client_.Connect(host, port);
 }
@@ -25,7 +27,7 @@ void ClientModel::PollMessages() {
   }
 }
 
-const std::vector<std::string>& ClientModel::GetMessages() const {
+std::span<const std::string> ClientModel::GetMessages() const {
   return receivedMessages_;
 }
 

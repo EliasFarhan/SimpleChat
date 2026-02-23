@@ -19,27 +19,31 @@
 #include <string_view>
 #include <vector>
 
-#include "chat_client.h"
+#include "chat_client_interface.h"
+#include "client_model_interface.h"
 
-class ClientModel {
+class ClientModel : public ClientModelInterface {
  public:
+  explicit ClientModel(ChatClientInterface& client);
+
   /// Connect to the server at the given address and port.
-  [[nodiscard]] bool Connect(std::string_view host, unsigned short port);
+  [[nodiscard]] bool Connect(std::string_view host,
+                             unsigned short port) override;
 
   /// Send a chat message (or game action) to the server.
-  [[nodiscard]] bool SendMessage(std::string_view message);
+  [[nodiscard]] bool SendMessage(std::string_view message) override;
 
   /// Read all available messages from the network and store them.
-  void PollMessages();
+  void PollMessages() override;
 
   /// Get the full list of received messages (read-only).
-  [[nodiscard]] const std::vector<std::string>& GetMessages() const;
+  [[nodiscard]] std::span<const std::string> GetMessages() const override;
 
   /// Check whether we are still connected to the server.
-  [[nodiscard]] bool IsConnected() const;
+  [[nodiscard]] bool IsConnected() const override;
 
  private:
-  ChatClient client_;  ///< Low-level network connection.
+  ChatClientInterface& client_;  ///< Low-level network connection.
   std::vector<std::string> receivedMessages_;  ///< Chat history.
 };
 

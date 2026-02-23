@@ -50,18 +50,8 @@ endif()
 find_package(SFML COMPONENTS Network CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(SDL3 CONFIG REQUIRED)
+find_package(GTest CONFIG REQUIRED)
 
-# Common library (networking + model + controller)
-add_library(common_lib STATIC
-  src/chat_client.cpp
-  src/chat_server.cpp
-  src/client_model.cpp
-  src/client_controller.cpp
-)
-target_include_directories(common_lib PUBLIC include)
-target_include_directories(common_lib SYSTEM PUBLIC externals/SFML/include)
-target_link_libraries(common_lib PUBLIC SFML::Network)
-target_compile_options(common_lib PRIVATE ${PROJECT_WARNING_FLAGS})
-
-
+add_subdirectory(model_lib)
 add_subdirectory(main)
+add_subdirectory(test)
