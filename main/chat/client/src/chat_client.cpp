@@ -11,7 +11,7 @@
 
 #include "const.h"
 
-bool ChatClient::Connect(std::string_view host, unsigned short port) {
+bool ChatClient::Connect(std::string_view host, uint16_t port) {
   // Resolve the human-readable host name (e.g. "localhost") to an IP address.
   auto address = sf::IpAddress::resolve(std::string(host));
   if (!address) {
@@ -47,7 +47,7 @@ bool ChatClient::Connect(std::string_view host, unsigned short port) {
 
 bool ChatClient::Send(std::string_view message) {
   // Clamp the message to MAX_MESSAGE_LENGTH to avoid buffer overflows.
-  const auto sendSize = std::min(message.size(), MAX_MESSAGE_LENGTH);
+  const auto sendSize = std::min(message.size(), kMaxMessageLength);
 
   // TCP may not send all bytes in one call (especially for large messages).
   // We loop, advancing a cursor, until everything has been sent.
@@ -56,9 +56,9 @@ bool ChatClient::Send(std::string_view message) {
     std::size_t dataSent = 0;
     const auto sendStatus =
         socket_.send(message.data() + totalSent, sendSize - totalSent, dataSent);
+    totalSent += dataSent;
     if (sendStatus == sf::Socket::Status::Partial) {
       // Only part of the data was sent -- advance the cursor and retry.
-      totalSent += dataSent;
       continue;
     }
     if (sendStatus == sf::Socket::Status::Done) {
@@ -73,12 +73,12 @@ bool ChatClient::Send(std::string_view message) {
 std::optional<std::string> ChatClient::Receive() {
   // Prepare a buffer large enough for one message.
   std::string message;
-  message.resize(MAX_MESSAGE_LENGTH);
+  message.resize(kMaxMessageLength);
   std::size_t actuallyReceived = 0;
 
   // Non-blocking receive: returns immediately even if no data is available.
   const auto receivedStatus =
-      socket_.receive(message.data(), MAX_MESSAGE_LENGTH, actuallyReceived);
+      socket_.receive(message.data(), kMaxMessageLength, actuallyReceived);
   if (receivedStatus == sf::Socket::Status::Done) {
     // Shrink the string to the actual number of bytes received.
     message.resize(actuallyReceived);

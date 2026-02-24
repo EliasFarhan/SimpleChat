@@ -30,7 +30,7 @@ class ChatServer {
    * @brief Start listening for incoming connections on @p port.
    * @return true if the listener was set up successfully.
    */
-  [[nodiscard]] bool Start(unsigned short port);
+  [[nodiscard]] bool Start(uint16_t port);
 
   /**
    * @brief Run one server tick: clean up, accept new clients, relay messages.

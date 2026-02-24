@@ -10,13 +10,13 @@
 
 #include "chat_server.h"
 
-#include <filesystem>
 #include <print>
 #include <ranges>
+#include <set>
 
 #include "const.h"
 
-bool ChatServer::Start(unsigned short port) {
+bool ChatServer::Start(uint16_t port) {
   // Non-blocking listener so that accept() returns immediately when no
   // new client is waiting.
   listener_.setBlocking(false);
@@ -48,7 +48,7 @@ void ChatServer::AcceptNewConnections() {
 
 void ChatServer::CleanDisconnected() {
   for (int64_t socket_idx = std::ssize(sockets_) - 1; socket_idx >= 0; --socket_idx) {
-    auto& socket = sockets_[socket_idx];
+    auto& socket = sockets_[static_cast<size_t>(socket_idx)];
     // A local port of 0 means the OS has closed the socket.
     if (socket.getLocalPort() == 0) {
       RemoveSocketAt(socket_idx);
@@ -63,18 +63,20 @@ void ChatServer::HandleMessages() {
     return;  // No socket had data within the timeout.
   }
 
+  std::set<int64_t> socket_idx_to_remove;
+
   for (int64_t socket_idx = std::ssize(sockets_) - 1; socket_idx >= 0; --socket_idx) {
-    auto& socket = sockets_[socket_idx];
+    auto& socket = sockets_[static_cast<size_t>(socket_idx)];
     // Only read from sockets that the selector flagged as ready.
     if (!socketSelector_.isReady(socket)) continue;
 
     std::string message;
-    message.resize(MAX_MESSAGE_LENGTH);
+    message.resize(kMaxMessageLength);
     size_t actualLength = 0;
 
-    sf::Socket::Status receiveStatus = socket.receive(message.data(), MAX_MESSAGE_LENGTH, actualLength);
+    sf::Socket::Status receiveStatus = socket.receive(message.data(), kMaxMessageLength, actualLength);
     if (receiveStatus == sf::Socket::Status::Disconnected) {
-      RemoveSocketAt(socket_idx);
+      socket_idx_to_remove.insert(socket_idx);
       continue;
     }
 
@@ -87,7 +89,7 @@ void ChatServer::HandleMessages() {
         // For a game you would replace this with game logic (validate
         // the move, update state, send targeted responses, etc.).
         for (int64_t other_idx = std::ssize(sockets_) - 1; other_idx >= 0; --other_idx) {
-          auto& otherSocket = sockets_[other_idx];
+          auto& otherSocket = sockets_[static_cast<size_t>(other_idx)];
           size_t totalSent = 0;
           while (totalSent < actualLength) {
             size_t sentDataCount = 0;
@@ -99,7 +101,7 @@ void ChatServer::HandleMessages() {
               continue;
             }
             else if (sendStatus == sf::Socket::Status::Disconnected) {
-              RemoveSocketAt(other_idx);
+              socket_idx_to_remove.insert(other_idx);
               break;
             }
             else {
@@ -110,7 +112,7 @@ void ChatServer::HandleMessages() {
         break;
       }
       case sf::Socket::Status::Partial:
-        std::print(stderr, "Partial received...\n");
+        std::print(stderr, "Partial received should not happen...\n");
         break;
       case sf::Socket::Status::Error:
         std::print(stderr, "Error receiving\n");
@@ -123,8 +125,11 @@ void ChatServer::HandleMessages() {
         break;
     }
   }
+  for (long socket_idx : std::ranges::reverse_view(socket_idx_to_remove)) {
+    sockets_.erase(sockets_.begin() + socket_idx);
+  }
 }
 void ChatServer::RemoveSocketAt(int64_t index) {
-  socketSelector_.remove(sockets_[index]);
+  socketSelector_.remove(sockets_[static_cast<size_t>(index)]);
   sockets_.erase(sockets_.begin() + index);
 }

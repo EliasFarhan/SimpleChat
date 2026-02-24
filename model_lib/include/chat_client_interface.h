@@ -4,13 +4,14 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <cstdint>
 
 class ChatClientInterface {
  public:
   virtual ~ChatClientInterface() = default;
 
   [[nodiscard]] virtual bool Connect(std::string_view host,
-                                     unsigned short port) = 0;
+                                     uint16_t port) = 0;
   [[nodiscard]] virtual bool Send(std::string_view message) = 0;
   [[nodiscard]] virtual std::optional<std::string> Receive() = 0;
   [[nodiscard]] virtual bool IsConnected() const = 0;

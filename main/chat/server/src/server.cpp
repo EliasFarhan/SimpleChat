@@ -17,7 +17,7 @@
 
 int main() {
   ChatServer server;
-  if (!server.Start(PORT_NUMBER)) {
+  if (!server.Start(kPortNumber)) {
     return EXIT_FAILURE;
   }
   // Server main loop -- runs forever until the process is killed (Ctrl+C).

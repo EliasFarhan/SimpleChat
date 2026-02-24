@@ -9,17 +9,17 @@
 
 class ClientController {
  public:
-  ClientController(ClientModelInterface& model,
+  ClientController(ClientModelInterface &model,
                    std::unique_ptr<ClientViewInterface> view);
 
   void Run();
 
  private:
-  ClientModelInterface& model_;
+  ClientModelInterface &model_;
   std::unique_ptr<ClientViewInterface> view_;
 
   std::string serverAddress_ = "localhost";
-  unsigned short portNumber_ = PORT_NUMBER;
+  uint16_t portNumber_ = kPortNumber;
   std::string sendMessage_;
 };
 

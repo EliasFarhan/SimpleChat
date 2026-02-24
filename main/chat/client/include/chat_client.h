@@ -37,7 +37,7 @@ class ChatClient : public ChatClientInterface {
    * @return true on success, false on failure (address not found, refused, etc.)
    */
   [[nodiscard]] bool Connect(std::string_view host,
-                             unsigned short port) override;
+                             uint16_t port) override;
 
   /**
    * @brief Send a text message to the server (up to MAX_MESSAGE_LENGTH bytes).

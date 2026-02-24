@@ -3,10 +3,9 @@
 #include <array>
 #include <print>
 
+#include "const.h"
 #include "SFML/Network/SocketSelector.hpp"
 
-constexpr size_t kMaxMsgLength = 100;
-constexpr uint16_t kPort = 53000;
 
 int main() {
   sf::TcpListener listener;
@@ -14,7 +13,7 @@ int main() {
   std::vector<sf::TcpSocket> clientSockets;
   sf::SocketSelector selector;
   // bind the listener to a port
-  if (const auto status = listener.listen(kPort);
+  if (const auto status = listener.listen(kPortNumber);
       status != sf::Socket::Status::Done) {
     std::print(stderr, "Error while listening status: {}\n",
                static_cast<int>(status));
@@ -41,12 +40,12 @@ int main() {
         auto& socket = clientSockets[i];
         if (selector.isReady(socket)) {
           // Receiving data
-          std::array<char, kMaxMsgLength> receive_data{};
+          std::array<char, kMaxMessageLength> receive_data{};
           size_t received;
 
           // TCP socket:
           if (const auto status =
-                  socket.receive(receive_data.data(), kMaxMsgLength, received);
+                  socket.receive(receive_data.data(), kMaxMessageLength, received);
               status != sf::Socket::Status::Done) {
             if (status == sf::Socket::Status::Disconnected) {
               selector.remove(socket);

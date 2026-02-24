@@ -27,6 +27,7 @@ void ClientController::Run() {
         if (!model_.SendMessage(sendMessage_)) {
           std::print(stderr, "Failed to send message\n");
         }
+        sendMessage_.clear();
       }
     }
 

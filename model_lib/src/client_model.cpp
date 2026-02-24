@@ -11,7 +11,7 @@
 
 ClientModel::ClientModel(ChatClientInterface& client) : client_(client) {}
 
-bool ClientModel::Connect(std::string_view host, unsigned short port) {
+bool ClientModel::Connect(std::string_view host, uint16_t port) {
   return client_.Connect(host, port);
 }
 

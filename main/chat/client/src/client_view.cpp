@@ -100,7 +100,7 @@ void ClientView::EndFrame() {
 }
 
 bool ClientView::DrawConnectionPanel(std::string& address,
-                                      unsigned short& port) {
+                                      uint16_t& port) {
   // Text input for the server address.
   ImGui::InputText("Host Address", &address);
   ImGui::SameLine();
@@ -109,7 +109,7 @@ bool ClientView::DrawConnectionPanel(std::string& address,
   int portInt = port;
   if (ImGui::InputInt("Port", &portInt, 0, 0)) {
     if (portInt > 0 && portInt <= 65535) {
-      port = static_cast<unsigned short>(portInt);
+      port = static_cast<uint16_t>(portInt);
     }
   }
 

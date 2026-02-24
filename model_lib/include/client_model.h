@@ -28,7 +28,7 @@ class ClientModel : public ClientModelInterface {
 
   /// Connect to the server at the given address and port.
   [[nodiscard]] bool Connect(std::string_view host,
-                             unsigned short port) override;
+                             uint16_t port) override;
 
   /// Send a chat message (or game action) to the server.
   [[nodiscard]] bool SendMessage(std::string_view message) override;

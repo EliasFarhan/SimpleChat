@@ -4,13 +4,14 @@
 #include <string>
 #include <string_view>
 #include <span>
+#include <cstdint>
 
 class ClientModelInterface {
  public:
   virtual ~ClientModelInterface() = default;
 
   [[nodiscard]] virtual bool Connect(std::string_view host,
-                                     unsigned short port) = 0;
+                                     uint16_t port) = 0;
   [[nodiscard]] virtual bool SendMessage(std::string_view message) = 0;
   virtual void PollMessages() = 0;
   [[nodiscard]] virtual std::span<const std::string> GetMessages() const = 0;
