@@ -30,11 +30,11 @@ int main() {
              client.getRemoteAddress()->toString(), client.getRemotePort());
   // Receiving data
   std::array<char, kMaxMessageLength> receive_data{};
-  size_t received;
+  size_t received_byte_count;
 
   // TCP socket:
   if (const auto status =
-          client.receive(receive_data.data(), kMaxMessageLength, received);
+          client.receive(receive_data.data(), kMaxMessageLength, received_byte_count);
       status != sf::Socket::Status::Done) {
     std::print(stderr, "Error while receiving data: {}\n",
                static_cast<int>(status));
@@ -43,7 +43,7 @@ int main() {
 
   std::print("Received data: {}\n", receive_data.data());
 
-  if (const auto status = client.send(receive_data.data(), received);
+  if (const auto status = client.send(receive_data.data(), received_byte_count);
       status != sf::Socket::Status::Done) {
     std::print(stderr, "Error while sending data: {}\n",
                static_cast<int>(status));

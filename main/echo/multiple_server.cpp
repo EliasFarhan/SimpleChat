@@ -41,11 +41,11 @@ int main() {
         if (selector.isReady(socket)) {
           // Receiving data
           std::array<char, kMaxMessageLength> receive_data{};
-          size_t received;
+          size_t received_byte_count;
 
           // TCP socket:
           if (const auto status =
-                  socket.receive(receive_data.data(), kMaxMessageLength, received);
+                  socket.receive(receive_data.data(), kMaxMessageLength, received_byte_count);
               status != sf::Socket::Status::Done) {
             if (status == sf::Socket::Status::Disconnected) {
               selector.remove(socket);
@@ -65,7 +65,7 @@ int main() {
 
           std::print("Received data: {}\n", receive_data.data());
 
-          if (const auto status = socket.send(receive_data.data(), received);
+          if (const auto status = socket.send(receive_data.data(), received_byte_count);
               status != sf::Socket::Status::Done) {
             std::print(stderr, "Error while sending data: {}\n",
                        static_cast<int>(status));
