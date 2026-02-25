@@ -27,7 +27,7 @@ void ClientModel::PollMessages() {
   }
 }
 
-std::span<const std::string> ClientModel::GetMessages() const {
+std::span<const std::string> ClientModel::messages() const {
   return receivedMessages_;
 }
 

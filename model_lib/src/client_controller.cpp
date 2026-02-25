@@ -23,7 +23,7 @@ void ClientController::Run() {
       }
     } else {
       model_.PollMessages();
-      if (view_->DrawChatPanel(model_.GetMessages(), sendMessage_)) {
+      if (view_->DrawChatPanel(model_.messages(), sendMessage_)) {
         if (!model_.SendMessage(sendMessage_)) {
           std::print(stderr, "Failed to send message\n");
         }

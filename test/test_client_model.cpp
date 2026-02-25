@@ -64,7 +64,7 @@ TEST(ClientModelTest, PollMessagesAccumulatesMessages) {
 
   model.PollMessages();
 
-  const auto& msgs = model.GetMessages();
+  const auto& msgs = model.messages();
   ASSERT_EQ(msgs.size(), kMessageCount);
   EXPECT_EQ(msgs[0], kMsg1);
   EXPECT_EQ(msgs[1], kMsg2);
@@ -86,7 +86,7 @@ TEST(ClientModelTest, PollMessagesAppendsAcrossCalls) {
   model.PollMessages();
   model.PollMessages();
 
-  const auto& msgs = model.GetMessages();
+  const auto& msgs = model.messages();
   ASSERT_EQ(msgs.size(), kMessageCount);
   EXPECT_EQ(msgs[0], kMsg1);
   EXPECT_EQ(msgs[1], kMsg2);

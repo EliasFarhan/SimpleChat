@@ -14,7 +14,7 @@ class ClientModelInterface {
                                      uint16_t port) = 0;
   [[nodiscard]] virtual bool SendMessage(std::string_view message) = 0;
   virtual void PollMessages() = 0;
-  [[nodiscard]] virtual std::span<const std::string> GetMessages() const = 0;
+  [[nodiscard]] virtual std::span<const std::string> messages() const = 0;
   [[nodiscard]] virtual bool IsConnected() const = 0;
 };
 

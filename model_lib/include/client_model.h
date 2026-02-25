@@ -37,7 +37,7 @@ class ClientModel : public ClientModelInterface {
   void PollMessages() override;
 
   /// Get the full list of received messages (read-only).
-  [[nodiscard]] std::span<const std::string> GetMessages() const override;
+  [[nodiscard]] std::span<const std::string> messages() const override;
 
   /// Check whether we are still connected to the server.
   [[nodiscard]] bool IsConnected() const override;
