@@ -125,7 +125,7 @@ void ChatServer::HandleMessages() {
         break;
     }
   }
-  for (long socket_idx : std::ranges::reverse_view(socket_idx_to_remove)) {
+  for (auto socket_idx : std::ranges::reverse_view(socket_idx_to_remove)) {
     sockets_.erase(sockets_.begin() + socket_idx);
   }
 }
