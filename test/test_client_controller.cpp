@@ -16,7 +16,7 @@ class MockClientModel : public ClientModelInterface {
               (override));
   MOCK_METHOD(bool, SendMessage, (std::string_view message), (override));
   MOCK_METHOD(void, PollMessages, (), (override));
-  MOCK_METHOD(std::span<const std::string>, GetMessages, (),
+  MOCK_METHOD(std::span<const std::string>, messages, (),
               (const, override));
   MOCK_METHOD(bool, IsConnected, (), (const, override));
 };
@@ -106,7 +106,7 @@ TEST(ClientControllerTest, ChatSendFlowSendsMessage) {
 
   EXPECT_CALL(model, IsConnected()).WillOnce(Return(true));
   EXPECT_CALL(model, PollMessages()).Times(1);
-  EXPECT_CALL(model, GetMessages()).WillOnce(Return(messages));
+  EXPECT_CALL(model, messages()).WillOnce(Return(messages));
   EXPECT_CALL(*viewPtr, DrawChatPanel(_, _)).WillOnce(Return(true));
   EXPECT_CALL(model, SendMessage(_)).WillOnce(Return(true));
 
