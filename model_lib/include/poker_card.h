@@ -7,7 +7,6 @@
 
 namespace poker {
 enum class CardType {
-  kInvalid,
   k2,
   k3,
   k4,
@@ -20,20 +19,21 @@ enum class CardType {
   kJack,
   kQueen,
   kKing,
-  kAce
+  kAce,
+  kInvalid
 };
 
 enum class CardColor {
-  kInvalid,
   kClub,
   kHeart,
   kSpades,
   kDiamonds,
+  kInvalid
 };
 
 struct Card {
-  CardType type;
-  CardColor color;
+  CardType type = CardType::kInvalid;
+  CardColor color = CardColor::kInvalid;
 
   constexpr bool operator==(const Card &other) const {
     return type == other.type && color == other.color;

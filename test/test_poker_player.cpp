@@ -7,7 +7,7 @@
 
 #include "poker_player.h"
 
-TEST(PokerCard, GiveCardsShouldPutStored) {
+TEST(PokerPlayer, GiveCardsShouldPutStored) {
   poker::PokerPlayer player;
   EXPECT_TRUE(player.cards().empty());
 
@@ -23,7 +23,7 @@ TEST(PokerCard, GiveCardsShouldPutStored) {
 
 }
 
-TEST(PokerCard, ShouldNotGiveMoreThanTwoCards) {
+TEST(PokerPlayer, ShouldNotGiveMoreThanTwoCards) {
   poker::PokerPlayer player;
   EXPECT_TRUE(player.cards().empty());
 
@@ -44,7 +44,7 @@ TEST(PokerCard, ShouldNotGiveMoreThanTwoCards) {
 
 }
 
-TEST(PokerCard, CantGiveTheSameCard) {
+TEST(PokerPlayer, CantGiveTheSameCard) {
   poker::PokerPlayer player;
   EXPECT_TRUE(player.cards().empty());
 

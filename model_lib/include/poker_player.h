@@ -6,6 +6,7 @@
 #define SIMPLECHAT_POKER_PLAYER_H
 #include <array>
 #include <span>
+#include <cstdint>
 
 #include "poker_card.h"
 
@@ -25,6 +26,7 @@ private:
   static constexpr size_t kMaxPlayerCardCount = 2;
   std::array<Card, kMaxPlayerCardCount> cards_{};
   size_t cardCount_ = 0;
+
 };
 }
 #endif  // SIMPLECHAT_POKER_PLAYER_H
